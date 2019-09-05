@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./css/styles.css">
+    <title>Join a room and chill</title>
+</head>
+
+<body class="centered-form">
+    <div class="centered-form__form">
+        <form action="/chat.html" method="POST">
+            <div class="form-field">
+                <h3>Join a chat</h3>
+            </div>
+            <div class="form-field">
+                <label>Username</label>
+                <input type="text" name="name" required autofocus />
+            </div>
+            <div class="form-field">
+                <label>Password</label>
+                <input type="password" name="password" required />
+            </div>
+            <div class="form-field">
+                <label>Room name</label>
+                <input type="text" name="room" required />
+            </div>
+            <div class="form-field">
+                <button>Join</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="/js/index.js"></script>
+</body>
+
+</html>
