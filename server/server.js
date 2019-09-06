@@ -21,16 +21,18 @@ let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
 
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
 
 app.use(function (req, res, next) {
     if (!req.params.userId && !req.path.indexOf('/chat.html?') === 0) {
         return res.redirect('/');
     } else if (req.path.indexOf('/chat.html?') === 0) {
         let request = http.get({
-            host: 'localhost',
+            host: global.NODE_ENV === 'development' ? 'localhost' : 'sso-example-auth-server.herokuapp.com',
             path: '/api/v1/auth/' + req.params.userId,
-            port: 8080,
+            port: global.NODE_ENV === 'development' ? 8080 : 80,
             headers: {
                 'Authorization': 'Bearer ' + req.params.token,
                 "Content-Type": "application/json",
@@ -55,26 +57,31 @@ app.use(express.static(publicPath));
 app.get('/logout', (req, res) => {
     console.log(req.params)
     let request = http.request({
-        host: 'localhost',
         method: 'DELETE',
         path: '/api/v1/auth/',
-        port: 8080,
+        host: global.NODE_ENV === 'development' ? 'localhost' : 'sso-example-auth-server.herokuapp.com',
+        port: global.NODE_ENV === 'development' ? 8080 : 80,
         headers: {
             "Content-Type": "application/json",
             'Authorization': 'Bearer ' + req.params.token,
         },
-        
+
     }, function (response) {
         response.setEncoding('utf8');
         response.on('data', function (chunk) {
             console.log('BODY: ' + chunk);
             chunk = JSON.parse(chunk)
-            if (chunk.status !== "200 OK") { 
+            if (chunk.status !== "200 OK") {
                 res.redirect('/')
-            }
-            else {
-                let { token, user } = chunk.data;
-                let { email, id } = user;
+            } else {
+                let {
+                    token,
+                    user
+                } = chunk.data;
+                let {
+                    email,
+                    id
+                } = user;
                 res.redirect(`/`)
             }
         });
@@ -91,25 +98,30 @@ app.post('/chat.html', (req, res) => {
         room
     } = req.body;
     let request = http.request({
-        host: 'localhost',
         method: 'POST',
         path: '/api/v1/auth/',
-        port: 8080,
+        host: global.NODE_ENV === 'development' ? 'localhost' : 'sso-example-auth-server.herokuapp.com',
+        port: global.NODE_ENV === 'development' ? 8080 : 80,
         headers: {
             "Content-Type": "application/json",
         },
-        
+
     }, function (response) {
         response.setEncoding('utf8');
         response.on('data', function (chunk) {
             console.log('BODY: ' + chunk);
             chunk = JSON.parse(chunk)
-            if (chunk.status !== "200 OK") { 
+            if (chunk.status !== "200 OK") {
                 res.redirect('/')
-            }
-            else {
-                let { token, user } = chunk.data;
-                let { email, id } = user;
+            } else {
+                let {
+                    token,
+                    user
+                } = chunk.data;
+                let {
+                    email,
+                    id
+                } = user;
                 res.redirect(`/chat.html?name=${email}&room=${room}&userId=${id}&token=${token}`)
             }
         });
