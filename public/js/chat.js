@@ -21,7 +21,7 @@ window.onload = function() {
         socket.emit('join', params, (err) => {
             if (err) {
                 alert(err);
-                window.location.href = '/';
+                logout();
             } else {
                 console.log('no error');
             }
