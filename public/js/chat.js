@@ -5,7 +5,7 @@ window.onload = function() {
     xdLocalStorage.init(
         {
             /* required */
-            iframeUrl:'storage.html',
+            iframeUrl:'https://sso-example-server.herokuapp.com/storage.html',
             //an option function to be called right after the iframe was loaded and ready for action
             initCallback: function () {
                 console.log('Got iframe ready, chat');

@@ -25,37 +25,38 @@ app.use(bodyParser.urlencoded({
     extended: false
 }))
 
-app.use(function (req, res, next) {
-    if (!req.params.userId && !req.path.indexOf('/chat.html?') === 0) {
-        return res.redirect('/');
-    } else if (req.path.indexOf('/chat.html?') === 0) {
+app.use((req, res, next) => {
+    if (req.query.token && req.query.userId && req.path === '/chat.html' && req.method == 'GET') {
+        console.log(req.query)
         let request = http.get({
             host: global.NODE_ENV === 'development' ? 'localhost' : 'sso-example-auth-server.herokuapp.com',
-            path: '/api/v1/auth/' + req.params.userId,
+            path: '/api/v1/auth/' + req.query.userId,
             port: global.NODE_ENV === 'development' ? 8080 : 80,
             headers: {
-                'Authorization': 'Bearer ' + req.params.token,
+                'Authorization': 'Bearer ' + req.query.token,
                 "Content-Type": "application/json",
             },
         }, function (response) {
             response.setEncoding('utf8');
             response.on('data', function (chunk) {
                 console.log('BODY: ' + chunk);
-                if (chunk.status !== 200) return res.redirect('/')
-                else next();
+                if (JSON.parse(chunk).status !== '200 OK') { 
+                    res.redirect('/unauthorized.html');
+                }
+                else {
+                    console.log("yeah")
+                    next();
+                }
             });
         })
 
         request.end();
-    } else {
-        next();
-    }
+    } else next()
 })
 
 app.use(express.static(publicPath));
 
 app.get('/logout', (req, res) => {
-    console.log(req.params)
     let request = http.request({
         method: 'DELETE',
         path: '/api/v1/auth/',
@@ -63,7 +64,7 @@ app.get('/logout', (req, res) => {
         port: global.NODE_ENV === 'development' ? 8080 : 80,
         headers: {
             "Content-Type": "application/json",
-            'Authorization': 'Bearer ' + req.params.token,
+            'Authorization': 'Bearer ' + req.query.token,
         },
 
     }, function (response) {
@@ -74,14 +75,6 @@ app.get('/logout', (req, res) => {
             if (chunk.status !== "200 OK") {
                 res.redirect('/')
             } else {
-                let {
-                    token,
-                    user
-                } = chunk.data;
-                let {
-                    email,
-                    id
-                } = user;
                 res.redirect(`/`)
             }
         });
